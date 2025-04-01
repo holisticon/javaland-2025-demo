@@ -36,8 +36,8 @@ public class PipelineUsecase implements PipelineInPort {
                 .map(word -> Pair.of(counter.addAndGet(1), word))
                 .flatMap(ratelimitOutPort::applyRateLimit)
                 .flatMap(pair -> chaosMonkeyOutPort.causeProblem(pair)
-                        .onErrorResume(throwable -> throwable instanceof NumberSevenException, resumeOnError())
-                        .onErrorContinue(NumberSevenException.class, skipFaultyElement())
+                        .onErrorResume(this::isNumberSevenExpection, resumeOnError())
+                        .onErrorContinue(this::isNumberSevenExpection, skipFaultyElement())
                 )
                 .bufferTimeout(12, Duration.ofSeconds(10))
                 .map(wordList -> {
@@ -50,15 +50,22 @@ public class PipelineUsecase implements PipelineInPort {
     }
 
 
+
+
+
+    boolean isNumberSevenExpection(final Throwable throwable) {
+        return throwable instanceof NumberSevenException;
+    }
+
     BiConsumer<Throwable, Object> skipFaultyElement() {
         return (t, o) -> log.error("ERROR {} {}", t, o);
     }
 
     Function<Throwable, Mono<? extends Pair<Integer, String>>> resumeOnError() {
         return error -> {
-            if (error instanceof NumberSevenException e) {
-                log.error("ERROR {} {}", error.getMessage(), e.getPair());
-                return Mono.just(e.getPair());
+            if (error instanceof NumberSevenException exception) {
+                log.error("ERROR {} {}", error.getMessage(), exception.getPair());
+                return Mono.just(exception.getPair());
             }
             return Mono.just(Pair.of(-1, "default value"));
         };

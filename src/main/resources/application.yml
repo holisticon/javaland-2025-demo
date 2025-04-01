@@ -11,7 +11,7 @@ resilience4j:
   ratelimiter:
     instances:
       word-stream-limiter:
-        # max 10 requests per 3 seconds
+        # max 10 elements per 3 seconds
         limitForPeriod: 10
         limitRefreshPeriod: 3s
         timeoutDuration: 3m

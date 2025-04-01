@@ -34,7 +34,7 @@ public class RatelimitOutAdapter implements RatelimitOutPort {
     }
 
     @Override
-    public Mono<Pair<Integer, String>> applyRateLimit(@NonNull Pair<Integer, String> pair) {
+    public Mono<Pair<Integer, String>> applyRateLimit(final @NonNull Pair<Integer, String> pair) {
         return Mono.just(pair)
                 .transformDeferred(RateLimiterOperator.of(rateLimiter))
                 .retryWhen(getRetrySpec());
