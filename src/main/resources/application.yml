@@ -1,0 +1,19 @@
+application:
+  file-name: lorem_ipsum.txt
+
+spring:
+  application.name: reactive-pipeline
+logging:
+  pattern:
+    console: '%m%n'
+
+resilience4j:
+  ratelimiter:
+    instances:
+      word-stream-limiter:
+        # max 10 requests per 3 seconds
+        limitForPeriod: 10
+        limitRefreshPeriod: 3s
+        timeoutDuration: 3m
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10000
